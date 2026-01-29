@@ -1,19 +1,28 @@
-pipeline {
+pipeline{
 
     agent any
 
-    stages {
+    stages{
 
-        stage('Run Test') {
-            steps {
-                sh "docker-compose up"
+        stage('Start Grid'){
+            steps{
+                sh "docker-compose -f grid.yaml up -d"
             }
         }
 
-        stage('Bring Grid Down') {
-            steps {
-                sh "docker-compose down"
+        stage('Run Test'){
+            steps{
+                sh "docker-compose -f test-suites.yaml up --pull=always"
             }
+        }
+
+    }
+
+    post {
+        always {
+            sh "docker-compose -f grid.yaml down"
+            sh "docker-compose -f test-suites.yaml down"
         }
     }
+
 }
